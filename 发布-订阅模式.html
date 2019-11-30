@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0, user-scalable=no">
+    <title>发布订阅模式</title>
+</head>
+<body>
+<script>
+    var salesOffices = {};//定义售楼处
+    salesOffices.clientList = {};//缓存列表，缓存订阅者
+    salesOffices.listen = function (key,fn) {
+        if(!this.clientList[key]){
+            this.clientList[key] = [];
+        }
+        //增加订阅者(每个订阅者的订阅信息由key值保存)
+        this.clientList[key].push(fn);
+    }
+    salesOffices.trigger = function () {
+        var key = Array.prototype.shift.call(arguments);
+
+        var fnc = this.clientList[key];
+        //没有订阅消息
+        if(!fnc || fnc.length === 0){
+            return false;
+        }
+        //发布消息
+        for(var i = 0,fn; fn = fnc[i++];){
+            fn.apply(this, arguments);
+        }
+    }
+    //小明订阅
+    salesOffices.listen('88平方米',function (price) {
+        console.log('收件人：小明');
+        console.log('价格：'+price);
+    });
+    //小红订阅
+    salesOffices.listen('100平方米',function (price) {
+        console.log('收件人：小红');
+        console.log('价格：'+price);
+        console.log('平方数：'+squarMeter);
+    });
+    //发布消息
+    salesOffices.trigger('88平方米','100万');
+    salesOffices.trigger('100平方米','200万');
+</script>
+</body>
+</html>

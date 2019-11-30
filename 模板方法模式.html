@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0, user-scalable=no">
+    <title>茶或咖啡</title>
+</head>
+<body>
+    <script>
+        //抽象饮料类
+        var Beverage = function () {
+
+        }
+        Beverage.prototype.boilWater = function () {
+            console.log('煮沸开水');
+        }
+        //抽象空方法--子类重写
+        Beverage.prototype.brew = function () {
+            throw new Error('子类必须重写该方法');
+        }
+        //抽象空方法--子类重写
+        Beverage.prototype.pourInCup = function () {
+            throw new Error('子类必须重写该方法');
+        }
+        //抽象空方法--子类重写
+        Beverage.prototype.addCondiments = function () {
+            throw new Error('子类必须重写该方法');
+        }
+        //，我们把挂钩的名字定为customerWantsCondiments，
+        // 接下来将挂钩放入Beverage类，看看我们如何得到一杯不需要糖和牛奶的咖啡，代码如下：
+        Beverage.prototype.customerWantsCondiments = function() {
+            return true;
+        }
+        Beverage.prototype.init = function () {
+            this.boilWater();//煮沸开水
+            this.brew(); //放入材料
+            this.pourInCup(); //倒入杯子
+            if(this.customerWantsCondiments()){
+                this.addCondiments();//添加调料
+            }
+        }
+        var Coffee = function () {
+
+        }
+        //咖啡继承饮料类
+        Coffee.prototype = new Beverage();
+        Coffee.prototype.brew = function () {
+            console.log('放入咖啡粉');
+        }
+        Coffee.prototype.pourInCup = function () {
+            console.log('把咖啡倒入杯子');
+        }
+        Coffee.prototype.addCondiments = function () {
+            console.log('添加牛奶和糖');
+        }
+        var coffee = new Coffee();
+        coffee.init();
+        //泡茶
+        var Tea = function () {
+
+        }
+        Tea.prototype = new Beverage();
+        Tea.prototype.brew = function () {
+            console.log('放入茶叶');
+        }
+        Tea.prototype.pourInCup = function () {
+            console.log('倒入杯子');
+        }
+        Tea.prototype.addCondiments = function () {
+            console.log('加糖');
+        }
+        var tea = new Tea();
+        tea.init();
+        //钩子函数
+        var CoffeeWithHock = function () {
+
+        }
+        CoffeeWithHock.prototype = new Beverage();
+        CoffeeWithHock.prototype.brew = function () {
+            console.log('用沸水泡咖啡');
+        }
+        CoffeeWithHock.prototype.pourInCup = function () {
+            console.log('将咖啡倒入杯子');
+        }
+        CoffeeWithHock.prototype.addCondiments = function () {
+            console.log('加牛奶和糖');
+        }
+        CoffeeWithHock.prototype.customerWantsCondiments = function () {
+            return window.confirm('你想加牛奶和糖吗？');
+        }
+        var coffeeWithHock = new CoffeeWithHock();
+        coffeeWithHock.init();
+    </script>
+</body>
+</html>

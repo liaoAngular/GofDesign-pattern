@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0, user-scalable=no">
+    <title>代理模式</title>
+</head>
+<body>
+<input type="checkbox" id="1">
+<input type="checkbox" id="2">
+<input type="checkbox" id="3">
+<input type="checkbox" id="4">
+<input type="checkbox" id="5">
+<input type="checkbox" id="6">
+<input type="checkbox" id="7">
+<input type="checkbox" id="8">
+<input type="checkbox" id="9">
+<script>
+    var Flower = function () {};
+    var xiaoMing = {
+        sendFlower: function (target) {
+            var flower = new Flower();
+            target.receiveFlower(flower);
+        }
+    }
+    var B = {
+        receiveFlower: function (flower) {
+            A.listenGoodMood(function () {
+                A.receiveFlower(flower);
+            })
+        }
+    };
+    var A = {
+        listenGoodMood: function (fn) {
+            setTimeout(function () {
+                fn();
+            },5000)
+        },
+        receiveFlower: function (flower) {
+            console.log('收到花',flower);
+        }
+    };
+    /*xiaoMing.sendFlower(B);*/
+    var myImage = (function () {
+        var imgNode = document.createElement('img');
+        document.body.appendChild(imgNode);
+        return {
+            setSrc: function (src) {
+                imgNode = src;
+            }
+        }
+    })();
+    var proxyImage = (function () {
+        var img = new Image();
+        img.onload = function () {
+            myImage.setSrc(this.src);
+        }
+        return {
+            setSrc: function (src) {
+                myImage.setSrc('./img/answer.png');
+                img.src = src;
+            }
+        }
+    })();
+    /*proxyImage.setSrc('http:// imgcache.qq.com/music/photo/k/000GGDys0yA0Nk.jpg');*/
+    var synchronousFile = function (id) {
+        console.log('开始同步文件，id为：' + id);
+    }
+    var proxySynchronousFile = (function () {
+        var cache = [], ID, timer;
+        return function (id) {
+            cache.push(id);
+            if(timer){
+                return ;
+            }
+            timer = setTimeout(function () {
+                synchronousFile(cache.join('-'));
+                clearTimeout(timer);
+                timer = null;
+                cache.length = 0;
+            },2000);
+        }
+    })();
+    var checkbox = document.getElementsByTagName('input');
+    /*for(var i = 0, c; c = checkbox[i++];){
+        c.onclick = function () {
+            if(this.checked === true){
+                proxySynchronousFile(this.id);
+            }
+        }
+    }*/
+    var cache = [];
+    var miniConsole = {
+        log: function () {
+            var args = arguments;
+            cache.push(function () {
+                return miniConsole.log.apply(miniConsole, args);
+            });
+        }
+    };
+    miniConsole.log(1);
+    var handler = function (ev) {
+        if(ev.keyCode ==  13){
+            var script = document.createElement('script');
+            script.onload = function () {
+                for(var i = 0, fn; fn = cache[i++];){
+                    fn();
+                }
+            };
+            script.src = 'prototype/miniConsole.js';
+            document.getElementsByTagName( 'head' )[0].appendChild( script );
+        }
+    };
+    document.body.addEventListener( 'keydown', handler, false );
+    /* 缓存计算的数据 */
+    var mult = function () {
+        console.log('开始计算乘积');
+        var sum = 1;
+        for(var i = 0; i < arguments.length; i++){
+            sum = sum * arguments[i];
+        }
+        return sum;
+    }
+    var plus = function () {
+        console.log('开始计算和');
+        var sum = 1;
+        for(var i = 0; i < arguments.length; i++){
+            sum += arguments[i];
+        }
+        return sum;
+    }
+    var proxyMult = (function () {
+        var cache = {};
+        return function () {
+            var args = Array.prototype.join.call(arguments,',');
+            console.log(JSON.stringify(cache));
+            if(args in cache){
+                return cache[args];
+            }
+            return cache[args] = mult.apply(this, arguments);
+        }
+    })();
+    /*console.log(proxyMult(4,5,6));
+    console.log(proxyMult(4,5,6));*/
+    /* 代理工厂 */
+    var createProxyFactory = (function (fn) {
+        var cache = {};
+        return function () {
+            var args = Array.prototype.join.call(arguments,',');
+            if(args in cache){
+                return cache[args];
+            }
+            return cache[args] = fn.apply(this, arguments);
+        }
+    });
+    var proxyMult2 =createProxyFactory(mult);
+    var proxyPlus =createProxyFactory(plus);
+    console.log(proxyMult2(1,2,3,4,5));
+    console.log(proxyPlus(1,2,3,4,5));
+</script>
+</body>
+</html>

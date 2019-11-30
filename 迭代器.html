@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0, user-scalable=no">
+    <title>迭代器</title>
+</head>
+<body>
+<script>
+    var Iterator = function (obj) {
+        var current = 0;
+        var next = function () {
+            current += 1;
+        };
+        var isDone = function () {
+            return current >= obj.length;
+        };
+        var getCurrentItem = function () {
+            return obj[current];
+        };
+        return {
+            next: next,
+            isDone: isDone,
+            getCurrentItem: getCurrentItem
+        };
+    }
+    var compare = function (iterator1, iterator2) {
+        while (!iterator1.isDone() && !iterator2.isDone()){
+            if(iterator1.getCurrentItem() !== iterator2.getCurrentItem()){
+                throw new Error('iterator1 no equal iterator2');
+            }
+            iterator1.next();
+            iterator2.next();
+        }
+        console.log('iterator1 equal iterator2');
+    }
+    /*compare(Iterator([1,2,3]),Iterator([1,2,4]));*/
+    //倒序迭代器
+    var reverseEach = function (ary, callback) {
+        for(var i = ary.length -1; i >= 0; i--){
+           callback(i,ary[i]);
+        }
+    }
+    reverseEach([1,2,3,4],function (index,element) {
+        console.log(index,element);
+    });
+</script>
+</body>
+</html>
